@@ -30,7 +30,7 @@ def deal_hand(player_hand: list, dealer_hand: list, shoe: Shoe) -> None:
 def deal_card(hand: list, shoe: Shoe) -> None:
     """Deals a single card"""
 
-    hand.append(shoe.shoe.pop())
+    hand.append(shoe.remaining_cards.pop())
 
 def calculate_hand(hand: list) -> tuple[int, bool]:
     """Calculates value of given hand"""

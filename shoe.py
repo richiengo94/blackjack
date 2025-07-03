@@ -3,7 +3,7 @@ from random import shuffle
 class Shoe:
 
     def __init__(self, n_decks: int) -> None:
-        self.shoe = []
+        self.remaining_cards = []
         self.create_shoe(n_decks)
     
     def create_shoe(self, n_decks: int) -> None:
@@ -16,10 +16,10 @@ class Shoe:
 
             for i in range(len(values)):
                 for j in range(len(suits)):
-                    self.shoe.append((values[i], suits[j]))
+                    self.remaining_cards.append((values[i], suits[j]))
 
         self.shuffle_shoe()
     
     def shuffle_shoe(self) -> None:
         """Shuffles the shoe"""
-        shuffle(self.shoe)
+        shuffle(self.remaining_cards)
