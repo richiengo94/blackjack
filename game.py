@@ -2,9 +2,9 @@ from shoe import Shoe
 
 class Game:
 
-    def __init__(self):
+    def __init__(self, start_credit: float):
         self.game_over : bool = False
-        self.remaining_credit : float = 500
+        self.remaining_credit : float = start_credit
 
     def get_remaining_credit(self) -> float:
 
@@ -13,65 +13,70 @@ class Game:
     def set_remaining_credit(self, credit: float) -> None:
 
         self.remaining_credit = credit
+        
+    def is_game_over(self) -> bool:
 
-game = Game()
-shoe = Shoe(1)
-
-player_hand = []
-dealer_hand = []
-
-def deal_hand(player_hand: list, dealer_hand: list, shoe: Shoe) -> None:
-    """Deals starting hand in alternating order starting with player"""
-
-    for i in range(2):
-        deal_card(player_hand, shoe)
-        deal_card(dealer_hand, shoe)
-
-def deal_card(hand: list, shoe: Shoe) -> None:
-    """Deals a single card"""
-
-    hand.append(shoe.remaining_cards.pop())
-
-def calculate_hand(hand: list) -> tuple[int, bool]:
-    """Calculates value of given hand"""
-
-    hand_sum : int = 0
-    n_ace : int = 0
-    blackjack : bool = False
-
-    for i in range(len(hand)):
-        if(hand[i][0] == "J" or hand[i][0] == "Q" or hand[i][0] == "K"):
-            hand_sum += 10
-        elif(hand[i][0] == "A"):
-            hand_sum += 1
-            n_ace += 1
+        if(self.get_remaining_credit() <= 0):
+            self.game_over = True
         else:
-            hand_sum += int(hand[i][0])
+            continue_game : str = ""
+            
+            while(continue_game != "y" or continue_game != "n"):
+                continue_game = input("Continue playing? (y/n): ")
+                
+                if(continue_game != "y" or continue_game != "n"):
+                    print("Invalid response.")
 
-    # Calculates for aces
-    for i in range(n_ace):
-        if(hand_sum + 10 <= 21):
-            hand_sum += 10
+            if(continue_game == "y"):
+                self.game_over = False
+            elif(continue_game == "n"):
+                self.game_over = True
+        
+        return self.game_over
 
-    # Determines if hand is a blackjack
-    if(hand_sum == 21 and len(hand) == 2):
-        blackjack = True
 
-    return hand_sum, blackjack
+class Hand:
 
-deal_hand(player_hand, dealer_hand, shoe)
-print(player_hand)
-print(dealer_hand)
-#player_hand = [("A", "diamond"), ("A", "spade"), ("5", "heart"), ("8", "diamond"), ("8", "diamond")]
-print(calculate_hand(player_hand))
-print(calculate_hand(dealer_hand))
-deal_card(player_hand, shoe)
-print(player_hand)
-print(calculate_hand(player_hand))
+    def __init__(self):
+        self.hand : list = []
 
-while(not game.game_over):
-    if(game.get_remaining_credit() <= 0):
-       game.game_over = True
+    def deal_card(self, shoe: Shoe) -> None:
+        """Deals a single card"""
 
-    game.set_remaining_credit(game.get_remaining_credit() - 10)
-    #print(game.get_remaining_credit())
+        self.hand.append(shoe.remaining_cards.pop())
+
+    def calculate_hand(self) -> int:
+        """Calculates value of given hand"""
+
+        hand_sum : int = 0
+        n_ace : int = 0
+
+        for card_index in range(len(self.hand)):
+            if(self.hand[card_index][0] == "J" or self.hand[card_index][0] == "Q" or self.hand[card_index][0] == "K"):
+                hand_sum += 10
+            elif(self.hand[card_index][0] == "A"):
+                hand_sum += 1
+                n_ace += 1
+            else:
+                hand_sum += int(self.hand[card_index][0])
+
+        # Calculates for aces
+        for i in range(n_ace):
+            if(hand_sum + 10 <= 21):
+                hand_sum += 10
+
+        return hand_sum
+    
+    def display_hand(self, is_dealer_start: bool) -> None:
+        """Displays hand in terminal"""
+
+        # Hides the dealer's second card on initial deal
+        if(is_dealer_start):
+            print([self.hand[0], ("*", "********")])
+        else:
+            print(self.hand)
+
+    def clear_hand(self) -> None:
+        """Clears hand after new round"""
+        
+        self.hand = []
