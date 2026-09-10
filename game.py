@@ -2,35 +2,33 @@ from shoe import Shoe
 
 class Game:
 
-    def __init__(self, start_credit: float):
+    def __init__(self, start_credit: float, quit_game: bool = False) -> None:
         self.game_over : bool = False
         self.remaining_credit : float = start_credit
+        self.quit_game : bool = quit_game
 
     def get_remaining_credit(self) -> float:
-
         return self.remaining_credit
     
     def set_remaining_credit(self, credit: float) -> None:
-
         self.remaining_credit = credit
+
+    def get_quit_game(self) -> bool:
+        return self.quit_game
+
+    def set_quit_game(self, quit_game: bool) -> None:
+        self.quit_game = quit_game
         
     def is_game_over(self) -> bool:
+        """Checks if game is over based on remaining credit and quit_game flag"""
 
         if(self.get_remaining_credit() <= 0):
-            self.game_over = True
-        else:
-            continue_game : str = ""
-            
-            while(continue_game != "y" or continue_game != "n"):
-                continue_game = input("Continue playing? (y/n): ")
-                
-                if(continue_game != "y" or continue_game != "n"):
-                    print("Invalid response.")
+            print("You are out of credits.")
+            self.set_remaining_credit(0)
 
-            if(continue_game == "y"):
-                self.game_over = False
-            elif(continue_game == "n"):
-                self.game_over = True
+        if(self.get_remaining_credit() <= 0 or self.get_quit_game()):
+            self.game_over = True
+            print("Game over.")
         
         return self.game_over
 
