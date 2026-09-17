@@ -1,6 +1,8 @@
 import pygame
 import enum
 import button
+import game
+import shoe
 
 class MouseButton(enum.Enum):
     LEFT = 1
@@ -70,7 +72,9 @@ def main():
                 display_surface.fill('Blue')
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.mouse.get_pressed()[0] == MouseButton.LEFT.value and not button_clicked:
-                        pass
+                        new_game = game.Game(100)
+                        new_shoe = shoe.Shoe(1)
+
                         button_clicked = True
                 if event.type == pygame.MOUSEBUTTONUP:
                     if button_clicked:

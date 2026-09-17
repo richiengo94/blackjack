@@ -2,10 +2,10 @@ from shoe import Shoe
 
 class Game:
 
-    def __init__(self, start_credit: float, quit_game: bool = False) -> None:
+    def __init__(self, start_credit: float) -> None:
         self.game_over : bool = False
         self.remaining_credit : float = start_credit
-        self.quit_game : bool = quit_game
+        self.quit_game : bool = False
 
     def get_remaining_credit(self) -> float:
         return self.remaining_credit
@@ -23,12 +23,10 @@ class Game:
         """Checks if game is over based on remaining credit and quit_game flag"""
 
         if(self.get_remaining_credit() <= 0):
-            print("You are out of credits.")
             self.set_remaining_credit(0)
 
         if(self.get_remaining_credit() <= 0 or self.get_quit_game()):
             self.game_over = True
-            print("Game over.")
         
         return self.game_over
 
