@@ -19,7 +19,7 @@ class Button():
 
         if self.button_text:
             button_text = self.button_text_font.render(self.button_text, True, (0, 128, 0))
-            button_text_rect = button_text.get_rect(center=(surface.get_width() // 2, self.y+ (self.button_height // 2)))
+            button_text_rect = button_text.get_rect(center=(self.button_rect.x + (self.button_width // 2), self.y + (self.button_height // 2)))
             surface.blit(button_text, button_text_rect)
 
         return self.button_rect
