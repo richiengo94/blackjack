@@ -20,12 +20,11 @@ def main():
     pygame.display.init()
 
     display_surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    display_surface.fill((0, 128, 0))  # Fill the screen with green color
+    display_surface.fill('Black')
     pygame.display.set_caption("Blackjack")
     clock = pygame.time.Clock()
     FPS = clock.tick(60)
     game_font = pygame.font.Font(f"{GAME_DIRECTORY}/fonts/PixeloidMono.ttf", 32)
-    welcome_surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
     running: bool = True
 
@@ -40,19 +39,19 @@ def main():
                 running = False
 
             if game_state == "welcome":
-                display_welcome_screen(welcome_surface, game_font, SCREEN_WIDTH, SCREEN_HEIGHT)
+                display_welcome_screen(display_surface, game_font, SCREEN_WIDTH, SCREEN_HEIGHT)
 
                 start_button_x = (SCREEN_WIDTH - 250) // 2
                 start_button_y = (SCREEN_HEIGHT // 2) + 50
                 start_button = button.Button(start_button_x, start_button_y, 250, 50)
                 start_button.set_button_text("Start Game", game_font)
-                start_button_rect = start_button.draw(welcome_surface)
+                start_button_rect = start_button.draw(display_surface)
 
                 quit_button_x = start_button_x
                 quit_button_y = start_button_y + 70
                 quit_button = button.Button(quit_button_x, quit_button_y, 250, 50)
                 quit_button.set_button_text("Quit", game_font)
-                quit_button_rect = quit_button.draw(welcome_surface)
+                quit_button_rect = quit_button.draw(display_surface)
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.mouse.get_pressed()[0] == MouseButton.LEFT.value:
@@ -68,7 +67,7 @@ def main():
 
             elif game_state == "playing":
 
-                display_surface.fill('Black')
+                display_surface.fill('Blue')
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.mouse.get_pressed()[0] == MouseButton.LEFT.value and not button_clicked:
                         pass
