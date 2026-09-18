@@ -15,12 +15,12 @@ class Shoe:
 
         for curr_deck in range(self.num_decks):
 
-            values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
+            ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
             suits = ["heart", "diamond", "club", "spade"]
 
-            for i in range(len(values)):
-                for j in range(len(suits)):
-                    self.remaining_cards.append((values[i], suits[j]))
+            for i in range(len(suits)):
+                for j in range(len(ranks)):
+                    self.remaining_cards.append((suits[i], ranks[j]))
 
         self.shuffle_shoe()
     

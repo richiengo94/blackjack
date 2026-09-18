@@ -48,13 +48,13 @@ class Hand:
         n_ace : int = 0
 
         for card_index in range(len(self.hand)):
-            if(self.hand[card_index][0] == "J" or self.hand[card_index][0] == "Q" or self.hand[card_index][0] == "K"):
+            if(self.hand[card_index][1] == "J" or self.hand[card_index][1] == "Q" or self.hand[card_index][1] == "K"):
                 hand_sum += 10
-            elif(self.hand[card_index][0] == "A"):
+            elif(self.hand[card_index][1] == "A"):
                 hand_sum += 1
                 n_ace += 1
             else:
-                hand_sum += int(self.hand[card_index][0])
+                hand_sum += int(self.hand[card_index][1])
 
         # Calculates for aces
         for i in range(n_ace):
