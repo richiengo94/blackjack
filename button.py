@@ -12,13 +12,14 @@ class Button():
         self.button_text: str
         self.button_rect: pygame.Rect
         self.button_text_font: pygame.font
+        self.text_color: tuple = (0, 128, 0)
 
     def draw(self, surface: pygame.Surface) -> pygame.rect:
 
         self.button_rect = pygame.draw.rect(surface, (255, 255, 255), (self.x, self.y, self.button_width, self.button_height))
 
         if self.button_text:
-            button_text = self.button_text_font.render(self.button_text, True, (0, 128, 0))
+            button_text = self.button_text_font.render(self.button_text, True, self.text_color)
             button_text_rect = button_text.get_rect(center=(self.button_rect.x + (self.button_width // 2), self.y + (self.button_height // 2)))
             surface.blit(button_text, button_text_rect)
 
