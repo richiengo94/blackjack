@@ -51,3 +51,7 @@ class Button():
     def is_button_clicked(self) -> bool:
 
         return self.clicked
+
+    def set_button_text_color(self, color: tuple) -> None:
+
+        self.text_color = color
