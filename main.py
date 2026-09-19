@@ -32,17 +32,21 @@ def main():
     FPS = clock.tick(60)
     game_font = pygame.font.Font(f"{GAME_DIRECTORY}/fonts/PixeloidMono.ttf", 32)
 
+    card_spritesheet = pygame.image.load(f"{GRAPHICS_DIRECTORY}/playing_cards_spritesheet.png")
+
     new_game = game.Game(100)
     new_shoe = shoe.Shoe(1)
-    player_hand = game.Hand()
+    player_hands: list = [game.Hand()]
     dealer_hand = game.Hand()
 
-    blackjack.deal_hand(player_hand, dealer_hand, new_shoe)
-
+    blackjack.deal_hand(player_hands[0], dealer_hand, new_shoe)
 
     running: bool = True
-
     button_clicked: bool = False
+    player_turn: bool = True
+    player_busted: bool = False
+
+    player_hand_sum: int = 0
 
     while(running):
 
@@ -111,12 +115,14 @@ def main():
                 quit_button.set_button_text("Quit", game_font)
                 quit_button_rect: pygame.Rect = quit_button.draw(display_surf)
 
-                for i in range(len(player_hand.hand)):
-                    card_surf = pygame.image.load(f"{GRAPHICS_DIRECTORY}/{player_hand.hand[i][0]}_{player_hand.hand[i][1]}.png")
+                for i in range(len(player_hands[0].hand)):
+                    card_surf = pygame.image.load(f"{GRAPHICS_DIRECTORY}/{player_hands[0].hand[i][0]}_{player_hands[0].hand[i][1]}.png")
                     card_rect = card_surf.get_rect(center = (50 + 60 * (i + 1), 400))
                     display_surf.blit(card_surf, card_rect)
 
-                    sum_text = game_font.render(str(player_hand.calculate_hand()), True, 'White')
+                    player_hand_sum, player_busted = player_hands[0].calculate_hand()
+
+                    sum_text = game_font.render(str(player_hand_sum), True, 'White')
                     sum_text_rect = sum_text.get_rect(center = (140, 470))
                     display_surf.blit(sum_text, sum_text_rect)
 
@@ -127,6 +133,8 @@ def main():
                             quit_button.set_button_clicked(True)
                         if hit_button_rect.collidepoint(mouse_pos) and not quit_button.is_button_clicked():
                             hit_button.set_button_clicked(True)
+                            if not player_busted:
+                                player_hands[0].deal_card(new_shoe)
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     hit_button.set_button_clicked(False)
@@ -144,6 +152,13 @@ def display_welcome_screen(display_surf: pygame.Surface, game_font: pygame.font.
     text = game_font.render("Welcome to Blackjack!", True, 'White')
     text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
     display_surf.blit(text, text_rect)
+
+def get_card_sprite(suit: str, rank: str, graphics_directory: str) -> tuple:
+
+    rank_dict: dict = {"A": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "J": 11, "Q": 12, "K": 13}
+    suit_dict: dict = {"heart": 1, "club": 2, "diamond": 3, "spade": 4}
+
+    return (suit_dict[suit], rank_dict[rank])
 
 if __name__ == "__main__":
     main()
