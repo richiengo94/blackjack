@@ -47,6 +47,10 @@ def main():
     player_busted: bool = False
 
     player_hand_sum: int = 0
+    hand_index: int = 0
+
+    curr_hand: game.Hand = player_hands[0]
+    next_hand = None
 
     while(running):
 
@@ -114,16 +118,27 @@ def main():
                 quit_button: button.Button = button.Button(quit_button_x, quit_button_y, playing_buttons_width, playing_buttons_height)
                 quit_button.set_button_text("Quit", game_font)
                 quit_button_rect: pygame.Rect = quit_button.draw(display_surf)
-
-                for i in range(len(player_hands[0].hand)):
-                    card_surf = pygame.image.load(f"{GRAPHICS_DIRECTORY}/{player_hands[0].hand[i][0]}_{player_hands[0].hand[i][1]}.png")
-                    card_rect = card_surf.get_rect(center = (50 + 60 * (i + 1), 400))
+  
+                for card in range(len(curr_hand.hand)):
+                    card_surf = pygame.image.load(f"{GRAPHICS_DIRECTORY}/{curr_hand.hand[card][0]}_{curr_hand.hand[card][1]}.png")
+                    card_rect = card_surf.get_rect(center = (50 + 60 * (card + 1), 400))
                     display_surf.blit(card_surf, card_rect)
 
-                    player_hand_sum, player_busted = player_hands[0].calculate_hand()
+                    player_hand_sum, player_busted = curr_hand.calculate_hand()
 
                     sum_text = game_font.render(str(player_hand_sum), True, 'White')
                     sum_text_rect = sum_text.get_rect(center = (140, 470))
+                    display_surf.blit(sum_text, sum_text_rect)
+
+                for card in range(len(dealer_hand.hand)):
+                    card_surf = pygame.image.load(f"{GRAPHICS_DIRECTORY}/{dealer_hand.hand[card][0]}_{dealer_hand.hand[card][1]}.png")
+                    card_rect = card_surf.get_rect(center = (SCREEN_WIDTH // 2 + 60 * (card + 1) - 90, 150))
+                    display_surf.blit(card_surf, card_rect)
+
+                    dealer_hand_sum, dealer_busted = dealer_hand.calculate_hand()
+
+                    sum_text = game_font.render(str(dealer_hand_sum), True, 'White')
+                    sum_text_rect = sum_text.get_rect(center = (SCREEN_WIDTH // 2, 220))
                     display_surf.blit(sum_text, sum_text_rect)
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -134,7 +149,14 @@ def main():
                         if hit_button_rect.collidepoint(mouse_pos) and not quit_button.is_button_clicked():
                             hit_button.set_button_clicked(True)
                             if not player_busted:
-                                player_hands[0].deal_card(new_shoe)
+                                player_hands[hand_index].deal_card(new_shoe)
+                            else:
+                                if next_hand is not None:
+                                    curr_hand = next_hand
+                        if stand_button_rect.collidepoint(mouse_pos) and not quit_button.is_button_clicked():
+                            stand_button.set_button_clicked(True)
+                            if next_hand is not None:
+                                curr_hand = next_hand
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     hit_button.set_button_clicked(False)
