@@ -58,15 +58,6 @@ class Hand:
         busted: bool = self.is_bust(hand_sum)
 
         return hand_sum, busted
-    
-    def display_hand(self, is_dealer_start: bool) -> None:
-        """Displays hand in terminal"""
-
-        # Hides the dealer's second card on initial deal
-        if(is_dealer_start):
-            print([self.hand[0], ("*", "********")])
-        else:
-            print(self.hand)
 
     def clear_hand(self) -> None:
         """Clears hand after new round"""

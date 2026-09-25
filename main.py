@@ -28,6 +28,8 @@ def main():
     display_surf = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     display_surf.fill('Black')
     pygame.display.set_caption("Blackjack")
+    blackjack_icon = pygame.image.load(f"{GRAPHICS_DIRECTORY}/Red.png")
+    pygame.display.set_icon(blackjack_icon)
     clock = pygame.time.Clock()
     FPS = clock.tick(60)
     game_font = pygame.font.Font(f"{GAME_DIRECTORY}/fonts/PixeloidMono.ttf", 32)
@@ -130,17 +132,6 @@ def main():
                     sum_text_rect = sum_text.get_rect(center = (140, 470))
                     display_surf.blit(sum_text, sum_text_rect)
 
-                for card in range(len(dealer_hand.hand)):
-                    card_surf = pygame.image.load(f"{GRAPHICS_DIRECTORY}/{dealer_hand.hand[card][0]}_{dealer_hand.hand[card][1]}.png")
-                    card_rect = card_surf.get_rect(center = (SCREEN_WIDTH // 2 + 60 * (card + 1) - 90, 150))
-                    display_surf.blit(card_surf, card_rect)
-
-                    dealer_hand_sum, dealer_busted = dealer_hand.calculate_hand()
-
-                    sum_text = game_font.render(str(dealer_hand_sum), True, 'White')
-                    sum_text_rect = sum_text.get_rect(center = (SCREEN_WIDTH // 2, 220))
-                    display_surf.blit(sum_text, sum_text_rect)
-
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.mouse.get_pressed()[0] == MouseButton.LEFT.value and not button_clicked:
                         if quit_button_rect.collidepoint(mouse_pos) and not quit_button.is_button_clicked():
@@ -157,6 +148,8 @@ def main():
                             stand_button.set_button_clicked(True)
                             if next_hand is not None:
                                 curr_hand = next_hand
+
+                dealer_hand_sum, dealer_busted = display_card(display_surf, dealer_hand, True, SCREEN_WIDTH, (1,1), GRAPHICS_DIRECTORY, game_font)
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     hit_button.set_button_clicked(False)
@@ -181,6 +174,25 @@ def get_card_sprite(suit: str, rank: str, graphics_directory: str) -> tuple:
     suit_dict: dict = {"heart": 1, "club": 2, "diamond": 3, "spade": 4}
 
     return (suit_dict[suit], rank_dict[rank])
+
+def display_card(display_surf: pygame.Surface, hand: game.Hand, is_dealer_start: bool, screen_width: int, position: tuple, graphics_directory: str, font: pygame.font) -> tuple[int, bool]:
+    """Displays card to the display surface"""
+
+    for card in range(len(hand.hand)):
+        if card == 1:
+            card_surf = pygame.image.load(f"{graphics_directory}/back_red.png")
+        else:
+            card_surf = pygame.image.load(f"{graphics_directory}/{hand.get_suit(card)}_{hand.get_rank(card)}.png")
+        card_rect = card_surf.get_rect(center = (screen_width // 2 + 60 * (card + 1) - 90, 150))
+        display_surf.blit(card_surf, card_rect)
+        hand_sum, busted = hand.calculate_hand()
+
+        sum_text = font.render(str(hand_sum), True, 'White')
+        sum_text_rect = sum_text.get_rect(center = (screen_width // 2, 220))
+        display_surf.blit(sum_text, sum_text_rect)
+
+    return hand_sum, busted
+
 
 if __name__ == "__main__":
     main()
