@@ -1,13 +1,6 @@
 from shoe import Shoe
 import game
 
-def deal_hand(player_hand: game.Hand, dealer_hand: game.Hand, shoe: Shoe) -> None:
-    """Deals starting hand in alternating order starting with player"""
-
-    for i in range(2):
-        player_hand.deal_card(shoe)
-        dealer_hand.deal_card(shoe)
-
 def player_turn(player_hand: game.Hand, shoe: Shoe) -> list[int, bool, bool, bool]:
     """Player's turn to play hand"""
     
@@ -111,50 +104,3 @@ def dealer_turn(dealer_hand: game.Hand, shoe: Shoe) -> list[int, bool, bool]:
             is_dealer_turn = False
             
     return [hand_sum, blackjack, bust]
-
-def determine_winner(player_result: list, dealer_result: list, game: game.Game, bet: float):
-    """Determines winner of hand and updates remaining credit"""
-
-    player_hand_sum = player_result[0]
-    player_blackjack = player_result[1]
-    player_bust = player_result[2]
-    player_double_down = player_result[3]
-
-    dealer_hand_sum = dealer_result[0]
-    dealer_blackjack = dealer_result[1]
-    dealer_bust = dealer_result[2]
-
-    if(player_bust):
-        print("Player loses.\n")
-        game.set_remaining_credit(game.get_remaining_credit() - bet)
-    elif(player_blackjack):
-        print("Player wins!\n")
-        game.set_remaining_credit(game.get_remaining_credit() + (bet * 1.5))
-    elif(player_double_down):
-        if(dealer_bust or (player_hand_sum > dealer_hand_sum)):
-            print("Player wins!\n")
-            game.set_remaining_credit(game.get_remaining_credit() + (bet * 2))
-        else:
-            print("Player loses.\n")
-            game.set_remaining_credit(game.get_remaining_credit() - (bet * 2))
-    else:
-        if(dealer_blackjack):
-            print("Player loses.\n")
-            game.set_remaining_credit(game.get_remaining_credit() - bet)
-        elif(dealer_bust or (player_hand_sum > dealer_hand_sum)):
-            print("Player wins!\n")
-            game.set_remaining_credit(game.get_remaining_credit() + bet)
-        elif(player_hand_sum < dealer_hand_sum):
-            print("Player loses.\n")
-            game.set_remaining_credit(game.get_remaining_credit() - bet)
-        else:
-            print("Push.\n")
-
-    game.is_game_over()
-    print(f"Remaining credit: {game.get_remaining_credit()}")
-
-def check_quit_game(player_result: list, game: game.Game) -> None:
-    """Quits the game"""
-    
-    if player_result[4]:
-        game.set_quit_game(True)
