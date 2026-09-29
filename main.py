@@ -43,8 +43,26 @@ class Player():
     def next_hand(self, new_hand: game.Hand) -> None:
         self._next_hand = new_hand
 
+    @property
+    def turn(self) -> bool:
+        return self._turn
+
+    @turn.setter
+    def turn(self, is_turn: bool) -> None:
+        self._turn = is_turn
+
     def add_hand(self, new_hand: game.Hand) -> None:
         self._hand_list.append(new_hand)
+
+    def split_hand(self, hand_index: int, shoe: shoe.Shoe) -> None:
+        """Splits hand by creating a new hand and moving the second card from the old hand to the new hand then dealing new cards."""
+        new_hand = game.Hand()
+        new_hand.add_to_hand(self._curr_hand.hand.pop())
+
+        self._hand_list.insert(hand_index, new_hand)
+        self._hand_list[hand_index].deal_card(shoe)
+        self._hand_list[hand_index + 1].deal_card(shoe)
+        self._curr_hand = self._hand_list[hand_index]
 
     def check_player_hand(self):
         pass
@@ -53,15 +71,24 @@ class Dealer():
 
     def __init__(self, hand: game.Hand) -> None:
         self._hand: game.Hand = hand
+        self._turn: bool = False
 
     @property
     def hand(self) -> game.Hand:
         return self._hand
 
+    @property
+    def turn(self) -> bool:
+        return self._turn
+
+    @turn.setter
+    def turn(self, is_turn: bool) -> None:
+        self._turn = is_turn
+
 def main():
 
-    SCREEN_WIDTH: int = 800
-    SCREEN_HEIGHT: int = 600
+    SCREEN_WIDTH: int = 1280
+    SCREEN_HEIGHT: int = 720
 
     BG_COLOR: tuple = (0, 128, 0) # Mid-dark green
 
@@ -73,34 +100,48 @@ def main():
     pygame.font.init()
     pygame.display.init()
 
-    display_surf = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    display_surf: pygame.display = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     display_surf.fill('Black')
     pygame.display.set_caption("Blackjack")
-    blackjack_icon = pygame.image.load(f"{GRAPHICS_DIRECTORY}/Red.png")
+    blackjack_icon: pygame.image = pygame.image.load(fr"{GRAPHICS_DIRECTORY}/Red.png")
     pygame.display.set_icon(blackjack_icon)
     clock = pygame.time.Clock()
     FPS = clock.tick(60)
     start_font_size: int = 32
     play_font_size: int = 24
-    start_game_font = pygame.font.Font(f"{GAME_DIRECTORY}/fonts/PixeloidMono.ttf", start_font_size)
-    play_game_font = pygame.font.Font(f"{GAME_DIRECTORY}/fonts/PixeloidMono.ttf", play_font_size)
+    start_game_font: pygame.font = pygame.font.Font(fr"{GAME_DIRECTORY}/fonts/PixeloidMono.ttf", start_font_size)
+    play_game_font: pygame.font = pygame.font.Font(fr"{GAME_DIRECTORY}/fonts/PixeloidMono.ttf", play_font_size)
 
-    card_spritesheet = pygame.image.load(f"{GRAPHICS_DIRECTORY}/playing_cards_spritesheet.png")
+    card_spritesheet: pygame.image = pygame.image.load(fr"{GRAPHICS_DIRECTORY}/playing_cards_spritesheet.png")
 
-    new_shoe = shoe.Shoe(1)
+    new_shoe: shoe.Shoe = shoe.Shoe(1)
     player: Player = Player(game.Hand(), 100)
     dealer: Dealer = Dealer(game.Hand())
 
     deal_hand(player.hand_list[0], dealer.hand, new_shoe)
 
     running: bool = True
-    player_turn: bool = True
-    player_busted: bool = False
     dealer_start: bool = True
-    dealer_turn: bool = False
 
     player_hand_sum: int = 0
     hand_index: int = 0
+
+    welcome_buttons_x: int = (SCREEN_WIDTH - 250) // 2
+    welcome_buttons_y: int = (SCREEN_HEIGHT // 2) + 50
+    welcome_buttons_width: int = 250
+    welcome_buttons_height: int = 50
+
+    start_button_x: int = welcome_buttons_x
+    start_button_y: int = welcome_buttons_y
+    start_button: button.Button = button.Button(start_button_x, start_button_y, welcome_buttons_width, welcome_buttons_height)
+    start_button.button_text = "Start Game"
+    start_button.button_text_font = start_game_font
+
+    quit_button_x: int = welcome_buttons_x
+    quit_button_y: int = welcome_buttons_y + 70
+    quit_button: button.Button = button.Button(quit_button_x, quit_button_y, welcome_buttons_width, welcome_buttons_height)
+    quit_button.button_text = "Quit"
+    quit_button.button_text_font = start_game_font
 
     while(running):
 
@@ -112,25 +153,6 @@ def main():
 
             if game_state == "welcome":
                 display_welcome_screen(display_surf, start_game_font, SCREEN_WIDTH, SCREEN_HEIGHT, BG_COLOR)
-
-                welcome_buttons_x: int = (SCREEN_WIDTH - 250) // 2
-                welcome_buttons_y: int = (SCREEN_HEIGHT // 2) + 50
-                welcome_buttons_width: int = 250
-                welcome_buttons_height: int = 50
-
-                start_button_x: int = welcome_buttons_x
-                start_button_y: int = welcome_buttons_y
-                start_button: button.Button = button.Button(start_button_x, start_button_y, welcome_buttons_width, welcome_buttons_height)
-                start_button.button_text = "Start Game"
-                start_button.button_text_font = start_game_font
-                start_button_rect: pygame.Rect = start_button.draw(display_surf)
-
-                quit_button_x: int = welcome_buttons_x
-                quit_button_y: int = welcome_buttons_y + 70
-                quit_button: button.Button = button.Button(quit_button_x, quit_button_y, welcome_buttons_width, welcome_buttons_height)
-                quit_button.button_text = "Quit"
-                quit_button.button_text_font = start_game_font
-                quit_button_rect: pygame.Rect = quit_button.draw(display_surf)
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.mouse.get_pressed()[0] == MouseButton.LEFT.value:
@@ -144,13 +166,16 @@ def main():
                     start_button.clicked = False
                     quit_button.clicked = False
 
+                start_button_rect: pygame.Rect = start_button.draw(display_surf)
+                quit_button_rect: pygame.Rect = quit_button.draw(display_surf)
+
             elif game_state == "playing":
 
                 display_surf.fill(BG_COLOR)
 
-                playing_buttons_x: int = SCREEN_WIDTH - 150
-                playing_buttons_y: int = (SCREEN_HEIGHT // 3) + 50
-                playing_buttons_width: int = 100
+                playing_buttons_x: int = SCREEN_WIDTH - 225
+                playing_buttons_y: int = (SCREEN_HEIGHT // 3) + 200
+                playing_buttons_width: int = 200
                 playing_buttons_height: int = 40
 
                 hit_button_x: int = playing_buttons_x
@@ -158,47 +183,41 @@ def main():
                 hit_button: button.Button = button.Button(hit_button_x, hit_button_y, playing_buttons_width, playing_buttons_height)
                 hit_button.button_text = "Hit"
                 hit_button.button_text_font = play_game_font
-                hit_button_rect: pygame.Rect = hit_button.draw(display_surf)
 
                 stand_button_x: int = playing_buttons_x
                 stand_button_y: int = playing_buttons_y + 50
                 stand_button: button.Button = button.Button(stand_button_x, stand_button_y, playing_buttons_width, playing_buttons_height)
                 stand_button.button_text = "Stand"
                 stand_button.button_text_font = play_game_font
-                stand_button_rect: pygame.Rect = stand_button.draw(display_surf)
 
                 double_down_button_x: int = playing_buttons_x
                 double_down_button_y: int = playing_buttons_y + 100
                 double_down_button: button.Button = button.Button(double_down_button_x, double_down_button_y, playing_buttons_width, playing_buttons_height)
+                if len(player.curr_hand.hand) > 2:
+                    double_down_button.active = False
                 double_down_button.button_text = "Double Down"
                 double_down_button.button_text_font = play_game_font
-                double_down_button_rect: pygame.Rect = double_down_button.draw(display_surf)
 
                 split_button_x: int = playing_buttons_x
                 split_button_y: int = playing_buttons_y + 150
                 split_button: button.Button = button.Button(split_button_x, split_button_y, playing_buttons_width, playing_buttons_height)
+                if len(player.curr_hand.hand) > 2 or player.curr_hand.get_rank(0) != player.curr_hand.get_rank(1):
+                    split_button.active = False
                 split_button.button_text = "Split"
                 split_button.button_text_font = play_game_font
-                split_button_rect: pygame.Rect = split_button.draw(display_surf)
 
                 quit_button_x: int = playing_buttons_x
                 quit_button_y: int = playing_buttons_y + 200
                 quit_button: button.Button = button.Button(quit_button_x, quit_button_y, playing_buttons_width, playing_buttons_height)
                 quit_button.button_text = "Quit"
                 quit_button.button_text_font = play_game_font
-                quit_button_rect: pygame.Rect = quit_button.draw(display_surf)
   
                 for card in range(len(player.curr_hand.hand)):
                     card_surf = pygame.image.load(f"{GRAPHICS_DIRECTORY}/{player.curr_hand.hand[card][0]}_{player.curr_hand.hand[card][1]}.png")
-                    card_rect = card_surf.get_rect(center = (50 + 60 * (card + 1), 400))
+                    card_rect = card_surf.get_rect(center = (50 + 20 * (card + 1), 400))
                     display_surf.blit(card_surf, card_rect)
 
                     player_hand_sum = player.curr_hand.calculate_hand()
-
-                    if player_hand_sum > 21:
-                        player_busted = True
-                    else:
-                        player_busted = False
 
                     sum_text = play_game_font.render(str(player_hand_sum), True, 'White')
                     sum_text_rect = sum_text.get_rect(center = (140, 470))
@@ -209,41 +228,64 @@ def main():
                         if quit_button_rect.collidepoint(mouse_pos) and not quit_button.clicked:
                             running = False
                             quit_button.clicked = True
-                        if player_turn:
+                        if player.turn:
                             if hit_button_rect.collidepoint(mouse_pos) and not hit_button.clicked:
                                 hit_button.clicked = True
-                                if not player_busted:
+                                if not player_hand_sum >= 21:
                                     player.hand_list[hand_index].deal_card(new_shoe)
                                 else:
                                     if player.next_hand is not None:
                                         player.curr_hand = player.next_hand
+                                        hand_index += 1
                             if stand_button_rect.collidepoint(mouse_pos) and not stand_button.clicked:
                                 stand_button.clicked = True
                                 if player.next_hand is not None:
                                     player.curr_hand = player.next_hand
+                                    hand_index += 1
                                 else:
-                                    player_turn = False
+                                    player.turn = False
+                            if double_down_button_rect.collidepoint(mouse_pos) and not double_down_button.clicked:
+                                double_down_button.clicked = True
+                                if len(player.curr_hand.hand) == 2:
+                                    player.hand_list[hand_index].deal_card(new_shoe)
+                                    if player.next_hand is not None:
+                                        player.curr_hand = player.next_hand
+                                        hand_index += 1
+                            if split_button_rect.collidepoint(mouse_pos) and not split_button.clicked:
+                                split_button.clicked = True
+                                player.split_hand(hand_index, new_shoe)
 
-                if player_busted and not player.next_hand:
-                    player_turn = False
+                if (player_hand_sum >= 21 and not player.next_hand) or hand_index + 1 > len(player.hand_list):
+                    player.turn = False
 
-                if not player_turn:
+                if not player.turn:
+                    hit_button.active = False
+                    stand_button.active = False
+                    double_down_button.active = False
+                    split_button.active = False
                     dealer_start = False
-                    dealer_turn = True
+                    dealer.turn = True
 
                 dealer_hand_sum = display_card(display_surf, dealer.hand, dealer_start, SCREEN_WIDTH, (1,1), GRAPHICS_DIRECTORY, play_game_font)
-                if dealer_hand_sum < 17 and not player_turn:
+                if dealer_hand_sum < 17 and not player.turn:
                     dealer.hand.deal_card(new_shoe)
                 else:
-                    dealer_turn = False
+                    dealer.turn = False
 
-                if not player_turn and not dealer_turn:
+                if not player.turn and not dealer.turn:
                     compare_hands(player, dealer)
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     hit_button.clicked = False
                     stand_button.clicked = False
+
                     quit_button.clicked = False
+
+                hit_button_rect: pygame.Rect = hit_button.draw(display_surf)
+                stand_button_rect: pygame.Rect = stand_button.draw(display_surf)
+                double_down_button_rect: pygame.Rect = double_down_button.draw(display_surf)
+                split_button_rect: pygame.Rect = split_button.draw(display_surf)
+                quit_button_rect: pygame.Rect = quit_button.draw(display_surf)
 
         pygame.display.update()
 

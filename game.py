@@ -3,7 +3,7 @@ from shoe import Shoe
 class Hand:
 
     def __init__(self):
-        self._hand : list[tuple] = []
+        self._hand: list[tuple] = []
 
     def deal_card(self, shoe: Shoe) -> None:
         """Deals a single card"""
@@ -47,5 +47,6 @@ class Hand:
     @property
     def hand(self) -> list:
         return self._hand
-    
-    
+
+    def add_to_hand(self, card: tuple) -> None:
+        self._hand.append(card)

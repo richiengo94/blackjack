@@ -2,7 +2,7 @@ import pygame
 
 class Button():
 
-    def __init__(self, x: int, y: int, button_width: int, button_height: int) -> None:
+    def __init__(self, x: int, y: int, button_width: int, button_height: int, active: bool = True) -> None:
 
         self._clicked: bool = False
         self.x: int = x
@@ -13,10 +13,16 @@ class Button():
         self.button_rect: pygame.Rect
         self._button_text_font: pygame.font
         self.text_color: tuple = (0, 128, 0)
+        self._active: bool = active
 
     def draw(self, surface: pygame.Surface) -> pygame.rect:
 
-        self.button_rect = pygame.draw.rect(surface, (255, 255, 255), (self.x, self.y, self.button_width, self.button_height))
+        button_color: tuple[int, int, int] = (255, 255, 255) # White
+
+        if not self._active:
+            button_color = (150, 150, 150)
+
+        self.button_rect = pygame.draw.rect(surface, button_color, (self.x, self.y, self.button_width, self.button_height))
 
         if self.button_text:
             button_text = self._button_text_font.render(self.button_text, True, self.text_color)
@@ -48,6 +54,14 @@ class Button():
     @clicked.setter
     def clicked(self, is_clicked: bool) -> None:
         self._clicked = is_clicked
+
+    @property
+    def active(self) -> bool:
+        return self._active
+
+    @active.setter
+    def active(self, is_active: bool) -> None:
+        self._active = is_active
 
     def set_button_position(self, x: int, y: int) -> None:
 

@@ -20,6 +20,7 @@ class Shoe:
         for curr_deck in range(self._num_decks):
 
             ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
+            ranks = ["2", "2", "7", "7"]
             suits = ["heart", "diamond", "club", "spade"]
 
             for i in range(len(suits)):
