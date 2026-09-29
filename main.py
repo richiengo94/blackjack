@@ -211,17 +211,8 @@ def main():
                 quit_button: button.Button = button.Button(quit_button_x, quit_button_y, playing_buttons_width, playing_buttons_height)
                 quit_button.button_text = "Quit"
                 quit_button.button_text_font = play_game_font
-  
-                for card in range(len(player.curr_hand.hand)):
-                    card_surf = pygame.image.load(f"{GRAPHICS_DIRECTORY}/{player.curr_hand.hand[card][0]}_{player.curr_hand.hand[card][1]}.png")
-                    card_rect = card_surf.get_rect(center = (50 + 20 * (card + 1), 400))
-                    display_surf.blit(card_surf, card_rect)
 
-                    player_hand_sum = player.curr_hand.calculate_hand()
-
-                    sum_text = play_game_font.render(str(player_hand_sum), True, 'White')
-                    sum_text_rect = sum_text.get_rect(center = (140, 470))
-                    display_surf.blit(sum_text, sum_text_rect)
+                display_player_cards(display_surf, player, GRAPHICS_DIRECTORY, play_game_font)
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.mouse.get_pressed()[0] == MouseButton.LEFT.value and not quit_button.clicked:
@@ -266,7 +257,7 @@ def main():
                     dealer_start = False
                     dealer.turn = True
 
-                dealer_hand_sum = display_card(display_surf, dealer.hand, dealer_start, SCREEN_WIDTH, (1,1), GRAPHICS_DIRECTORY, play_game_font)
+                dealer_hand_sum = display_dealer_cards(display_surf, dealer.hand, dealer_start, SCREEN_WIDTH, (1,1), GRAPHICS_DIRECTORY, play_game_font)
                 if dealer_hand_sum < 17 and not player.turn:
                     dealer.hand.deal_card(new_shoe)
                 else:
@@ -306,8 +297,26 @@ def get_card_sprite(suit: str, rank: str, graphics_directory: str) -> tuple:
 
     return (suit_dict[suit], rank_dict[rank])
 
-def display_card(display_surf: pygame.Surface, hand: game.Hand, is_dealer_start: bool, screen_width: int, position: tuple, graphics_directory: str, font: pygame.font) -> tuple[int, bool]:
-    """Displays card to the display surface"""
+def display_player_cards(display_surf: pygame.Surface, player: Player, graphics_directory: str, font: pygame.font):
+    """Displays player cards for each hand to the display surface"""
+    
+    suit_index: int = 0
+    rank_index: int = 1
+
+    for curr_hand_index, curr_hand in enumerate(player.hand_list):
+        for card_index, card in enumerate(curr_hand.hand):
+            card_surf = pygame.image.load(f"{graphics_directory}/{card[suit_index]}_{card[rank_index]}.png")
+            card_rect = card_surf.get_rect(center = (50 + 200 * (curr_hand_index) + 20 * (card_index + 1), 400))
+            display_surf.blit(card_surf, card_rect)
+
+            curr_hand_sum = curr_hand.calculate_hand()
+
+            sum_text = font.render(str(curr_hand_sum), True, 'White')
+            sum_text_rect = sum_text.get_rect(center = (140 * (curr_hand_index + 1), 470))
+            display_surf.blit(sum_text, sum_text_rect)
+
+def display_dealer_cards(display_surf: pygame.Surface, hand: game.Hand, is_dealer_start: bool, screen_width: int, position: tuple, graphics_directory: str, font: pygame.font) -> tuple[int, bool]:
+    """Displays dealer cards to the display surface"""
 
     for card in range(len(hand.hand)):
         if card == 1 and is_dealer_start:
